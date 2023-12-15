@@ -1,0 +1,3 @@
+"0","NFL2022_stuffs_filtered <- NFL2022_stuffs %>% filter(!is.na(posteam))"
+"0",""
+"0","print(NFL2022_stuffs_filtered)"

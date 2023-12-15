@@ -1,0 +1,276 @@
+---
+title: DANL Project
+subtitle: "DANL 200 Dataset Analyzation "
+author: 
+  - Jayden Balcarczyk
+  - Andrew Sarafin
+  - Andrew VanDyk
+  - Dominik Zittel
+  - Lucas Rosa
+  - Noah Olsen
+
+toc: true
+toc-title: "Table of Contents"
+toc-depth: 2
+number-sections: true
+
+fig-width: 9
+
+execute:
+  code-tools: true
+  message: false
+  warning: false
+
+from: markdown+emoji
+---
+
+```{r setup}
+#| include: false
+library(tidyverse)
+library(skimr)
+library(ggthemes)
+library(hrbrthemes)
+library(dplyr)
+
+
+theme_set(theme_ipsum()+
+          theme(strip.background =element_rect(fill="lightgray"),
+                axis.title.x = 
+                  element_text(angle = 0,
+                               size = rel(1.33),
+                               margin = margin(10,0,0,0)),
+                axis.title.y = 
+                  element_text(angle = 0,
+                               size = rel(1.33),
+                               margin = margin(0,10,0,0))
+                )
+          )
+```
+
+# Introduction
+
+# Data
+
+The data.frame `mpg` contains a subset of the fuel economy data that the EPA makes available on <https://fueleconomy.gov/>. It contains only models which had a new release every year between 1999 and 2008 - this was used as a proxy for the popularity of the car. :oncoming_automobile:
+
+## Summary Statistics
+
+```{r}
+restaurant <- read_csv('https://bcdanl.github.io/data/DOHMH_NYC_Restaurant_Inspection.csv')
+
+```
+
+```{r}
+#| results: asis
+#| echo: false
+rmarkdown::paged_table(restaurant) 
+```
+
+```{r}
+skim(restaurant) %>% 
+  select(-n_missing)
+```
+
+## Ranking `BORO` by AVG `SCORE`
+```{r}
+filtered_data <- restaurant %>%
+  select(BORO, DBA, SCORE)
+average_scores_by_boro <- filtered_data %>%
+  group_by(BORO, DBA) %>%
+  summarise(AVG_SCORE = mean(SCORE, na.rm = TRUE), .groups = 'drop')
+average_score_by_boro <- average_scores_by_boro %>%
+  group_by(BORO) %>%
+  summarise(Overall_AVG_SCORE = mean(AVG_SCORE, na.rm = TRUE))
+print(average_score_by_boro)
+```
+
+## Visualization of ranking `Boro` by AVG `SCORE`
+```{r}
+ggplot(average_score_by_boro, aes(x = BORO, y = Overall_AVG_SCORE, fill = BORO)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Average Score of DBAs in Each Borough",
+       x = "Borough",
+       y = "Average Score") +
+  theme_minimal() +
+  scale_x_discrete(labels = scales::wrap_format(10))
+```
+## Analysis 
+
+
+
+## Amount of `CRITICAL` `CRITICAL FLAG` by `BORO`
+```{r}
+filtered_data <- restaurant %>%
+  select(BORO, `CRITICAL FLAG`)
+critical_flags_by_boro <- filtered_data %>%
+  filter(`CRITICAL FLAG` == "Critical") %>%
+  group_by(BORO) %>%
+  summarise(Critical_Flag_Count = n(), .groups = 'drop')
+print(critical_flags_by_boro)
+```
+
+
+## Visualization of amount of `CRITICAL` `CRITICAL FLAG` by `BORO`
+```{r}
+ggplot(critical_flags_by_boro, aes(x = BORO, y = Critical_Flag_Count, fill = BORO)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Count of Critical Flags by Borough",
+       x = "Borough",
+       y = "Critical Flag Count") +
+  theme_minimal()
+```
+## Analysis
+
+
+
+
+## Total number of A `GRADE` by `BORO`
+```{r}
+filtered_data <- restaurant %>%
+  select(BORO, GRADE)
+a_grades_by_boro <- filtered_data %>%
+  filter(GRADE == "A") %>%
+  group_by(BORO) %>%
+  summarise(A_Grade_Count = n(), .groups = 'drop')
+print(a_grades_by_boro)
+```
+
+## Visualization of Total number of A `GRADE` by `BORO`
+```{r}
+ggplot(a_grades_by_boro, aes(x = BORO, y = A_Grade_Count, fill = BORO)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total Count of 'A' Grades by Borough",
+       x = "Borough",
+       y = "'A' Grade Count") +
+  theme_minimal()
+```
+## Analysis
+
+
+
+
+## Total number of C `GRADE` by `BORO`
+```{r}
+filtered_data <- restaurant %>%
+  select(BORO, GRADE)
+c_grades_by_boro <- filtered_data %>%
+  filter(GRADE == "C") %>%
+  group_by(BORO) %>%
+  summarise(C_Grade_Count = n(), .groups = 'drop')
+print(c_grades_by_boro)
+```
+
+## Visualization of Total number of C `GRADE` by `BORO`
+```{r}
+filtered_data <- restaurant %>%
+  select(BORO, DBA, GRADE)
+a_grades_by_boro <- filtered_data %>%
+  filter(GRADE == "C") %>%
+  group_by(BORO, DBA) %>%
+  summarise(A_Grade_Count = n_distinct(DBA), .groups = 'drop')
+print(a_grades_by_boro)
+ggplot(a_grades_by_boro, aes(x = BORO, y = A_Grade_Count, fill = BORO)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Count of 'C' Grades by Borough",
+       x = "Borough",
+       y = "'C' Grade Count") +
+  theme_minimal()
+```
+## Analysis
+
+
+## Proportion of C `GRADE` `DBA` in each `BORO`
+```{r}
+filtered_data <- restaurant %>%
+  select(BORO, DBA)
+filtered_data$BORO[is.na(filtered_data$BORO)] <- 0
+total_dbas_by_boro <- filtered_data %>%
+  group_by(BORO) %>%
+  summarise(DBA_Count = n_distinct(DBA), .groups = 'drop')
+print(total_dbas_by_boro)
+25 / 1141 * 100
+84 / 3964 * 100
+97 / 5404 * 100
+83 / 3404 * 100
+5 / 577 * 100
+```
+## Analysis
+
+
+
+
+## Top 5 `DBA` in terms of `SCORE` by each `BORO`
+```{r}
+filtered_data <- restaurant %>%
+  select(BORO, DBA, SCORE)
+grouped_data <- filtered_data %>%
+  group_by(BORO, DBA) %>%
+  summarise(AVG_SCORE = mean(SCORE, na.rm = TRUE))
+ranked_data <- grouped_data %>%
+  arrange(BORO, desc(AVG_SCORE)) %>%
+  group_by(BORO) %>%
+  mutate(rank = row_number())
+top_5_dbas <- ranked_data %>%
+  filter(rank <= 5)
+print(top_5_dbas)
+```
+
+```{r}
+filtered_data <- restaurant %>%
+  select(BORO, DBA, SCORE)
+grouped_data <- filtered_data %>%
+  group_by(BORO, DBA) %>%
+  summarise(AVG_SCORE = mean(SCORE, na.rm = TRUE))
+ranked_data <- grouped_data %>%
+  arrange(BORO, desc(AVG_SCORE)) %>%
+  group_by(BORO) %>%
+  mutate(rank = row_number())
+top_5_dbas <- ranked_data %>%
+  filter(rank <= 5)
+ggplot(top_5_dbas, aes(x = reorder(DBA, AVG_SCORE), y = AVG_SCORE, fill = BORO)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Top 5 Highest Scoring DBAs in Each Borough",
+       x = "DBA",
+       y = "Average Score") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## Average `SCORE` of Top 5 `DBA` in each `BORO`
+```{r}
+(49 + 47 + 46 + 45 + 44)/5
+(66 + 62 + 62 + 61 + 59)/5
+(71 + 65 + 61 + 60 + 59)/5
+(86 + 67 + 65 + 58 + 57)/5
+(38 + 32.5 + 31 + 30 + 28)/5
+```
+## Analysis
+
+
+
+## Top 5 `CUISINE DESCRIPTION` in each `BORO`
+```{r}
+filtered_data <- restaurant %>%
+  select(BORO, `CUISINE DESCRIPTION`)
+counted_data <- filtered_data %>%
+  count(BORO, `CUISINE DESCRIPTION`, sort = TRUE)
+top_5_cuisines <- counted_data %>%
+  group_by(BORO) %>%
+  slice_max(n = 5, order_by = n)
+print(top_5_cuisines)
+```
+
+## Visualization of top 5 `CUISINE DESCRIPTION` in each `BORO`
+```{r}
+ggplot(top_5_cuisines, aes(x = reorder(`CUISINE DESCRIPTION`, n), y = n, fill = BORO)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Top 5 Cuisine Descriptions in Each Borough",
+       x = "Cuisine Description",
+       y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~ BORO, scales = "free_y", ncol = 2)
+```
+
+
+# Conclusion

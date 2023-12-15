@@ -1,0 +1,2 @@
+"0","#| results: asis"
+"0","rmarkdown::paged_table(NFL2022_stuffs) "

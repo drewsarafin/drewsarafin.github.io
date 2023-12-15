@@ -1,0 +1,4 @@
+"0","NFL2022_stuffs_EPA <- left_join(NFL2022_stuffs, NFL2022_epa %>% select(game_id, passer, receiver, epa), by = ""game_id"")"
+"2","Warning: Detected an unexpected many-to-many relationship between `x` and `y`."
+"0","NFL2022_stuffs_EPA <- NFL2022_stuffs_EPA %>% filter(!is.na(passer))"
+"0","print(NFL2022_stuffs_EPA)"
